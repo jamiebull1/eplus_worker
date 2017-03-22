@@ -24,12 +24,13 @@ import tempfile
 def find_version():
     """Get the installed EnergyPlus version number.
     """
-    energyplus = distutils.spawn.find_executable('EnergyPlus')
+    energyplus = distutils.spawn.find_executable('energyplus')
     if not energyplus:
         raise AttributeError
-    energyplus = os.path.realpath(energyplus) # follow links in /usr/bin
+    energyplus = os.path.realpath(energyplus)  # follow links in /usr/bin
     folder = os.path.dirname(energyplus)
     version = os.path.basename(folder)[-5:]
+    version = version.replace('.', '-')
     assert version[1] == '-' and version[3] == '-'
 
     return version

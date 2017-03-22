@@ -24,17 +24,18 @@ import zipfile
 from worker.runner import run as eplus_run
 
 
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+JOBS_DIR = os.path.join(THIS_DIR, 'jobs')
+RESULTS_DIR = os.path.join(THIS_DIR, 'results')
+LOG_PATH = os.path.join(THIS_DIR, 'worker.log')
+
 logging.basicConfig(
     level=logging.DEBUG,
-    filename='/var/log/worker.log',
+    filename=LOG_PATH,
     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
     datefmt='%m-%d %H:%M',
     filemode='a')
 logging.info("Starting worker")
-
-THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-JOBS_DIR = os.path.join(THIS_DIR, 'jobs')
-RESULTS_DIR = os.path.join(THIS_DIR, 'results')
 
 
 def get_jobs():
@@ -47,11 +48,12 @@ def get_jobs():
 
     """
     jobs = [os.path.join(JOBS_DIR, job)
-            for job in os.listdir(JOBS_DIR)]
+            for job in os.listdir(JOBS_DIR)
+            if job != '.gitignore']
     return jobs
 
 
-def unzip_dir(src, dest=None, rm=False):
+def unzip_dir(src, dest=None, rm=False, retry_time=5):
     """Unzip a zipped file.
 
     This is used for the incoming jobs.
@@ -64,25 +66,36 @@ def unzip_dir(src, dest=None, rm=False):
         The destination folder.
     rm : bool, optional {default: False}
         Flag indicating whether to delete the archive once unzipped.
+    retry_time : int, {default: 5}
+        Seconds to wait if unzipping fails on first attempt.
 
     """
     with zipfile.ZipFile(src, 'r') as zf:
         try:
             zf.extractall(dest)
         except BadZipfile:
-            time.sleep(5)  # allow any partially-uploaded jobs to complete
+            time.sleep(retry_time)  # allow partially-uploaded jobs to complete
             zf.extractall(dest)
     if rm:
         os.remove(src)
 
 
-def run_job(job):
-    time.sleep(5)  # allow any partially-uploaded jobs to complete
+def ensure_dir(dir_):
+    """Ensure a directory exists.
+    """
+    try:
+        os.mkdir(dir_)
+    except OSError:
+        assert os.path.isdir(dir_)
 
+
+def run_job(job, rm=True):
+    """Run an EnergyPlus job.
+    """
     run_dir = os.path.join(
         RESULTS_DIR, os.path.basename(job).replace('.zip', ''))
-    os.mkdir(run_dir)
-    unzip_dir(job, run_dir, rm=True)
+    ensure_dir(run_dir)
+    unzip_dir(job, run_dir, rm=rm, retry_time=5)
     try:
         idf = os.path.join(run_dir, 'in.idf')
         epw = os.path.join(run_dir, 'in.epw')
@@ -98,7 +111,16 @@ def run_job(job):
 
 
 def running_jobs():
-    dirs = os.listdir(RESULTS_DIR)
+    """Get a count of currently running jobs.
+
+    Returns
+    -------
+    int
+
+    """
+    dirs = [os.path.join(RESULTS_DIR, dir_)
+            for dir_ in os.listdir(RESULTS_DIR)
+            if os.path.isdir(os.path.join(RESULTS_DIR, dir_))]
     active_jobs = len(dirs)
     for f in dirs:
         if 'eplusout.end\n' in os.listdir(os.path.join(RESULTS_DIR, f)):
