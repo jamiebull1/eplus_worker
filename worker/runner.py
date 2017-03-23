@@ -15,6 +15,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import distutils.spawn
+import logging
 import os
 import platform
 from pprint import pprint
@@ -159,8 +160,15 @@ def run(idf=None, weather=None, output_directory='', annual=False,
             check_call(cmd, stdout=open(os.devnull, 'w'))
     except CalledProcessError as e:
         # potentially catch contents of std out and put it in the error
+        logging.error(e, exc_info=True)
         raise
     except IOError as e:
+        logging.error(e, exc_info=True)
+        raise
+    except OSError as e:
+        logging.error(e, exc_info=True)
+        for c in cmd:
+            print(c)
         raise
     finally:
         os.chdir(cwd)
