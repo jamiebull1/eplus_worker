@@ -163,6 +163,11 @@ def run(idf=None, weather=None, output_directory='', annual=False,
         pprint(**locals())
         print(cmd)
         raise
+    except IOError as e:
+        print(e)
+        pprint(**locals())
+        print(cmd)
+        raise
     finally:
         os.chdir(cwd)
     return 'OK'
