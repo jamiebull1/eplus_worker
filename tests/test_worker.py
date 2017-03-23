@@ -23,9 +23,9 @@ worker.main.RESULTS_DIR = os.path.join(worker.main.THIS_DIR, 'test_results')
 
 
 def test_find_version():
-    expected = '8-5-0'
+    expected = set(['8-5-0', '8.5.0'])
     result = find_version()
-    assert result == expected
+    assert result in expected
 
 
 class TestRunIntegration(object):
