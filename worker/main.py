@@ -140,7 +140,7 @@ def main():
             p = multiprocessing.Process(target=run_job, args=(job,))
             p.start()
         time.sleep(5)
-        if running_jobs <= num_cpus:
+        if running_jobs() <= num_cpus:
             open(os.path.join(
                 THIS_DIR, os.pardir, 'ready.txt'), 'a').close()
         time.sleep(5)
