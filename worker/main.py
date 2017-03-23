@@ -104,7 +104,7 @@ def run_job(job, rm=True):
             RESULTS_DIR, os.path.basename(run_dir))
         eplus_run(idf, epw,
                   output_directory=output_dir,
-#                  expandobjects=True,
+                  expandobjects=True,
                   verbose='v')
     except Exception as e:
         logging.error("Error: %s" % e)
