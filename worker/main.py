@@ -105,7 +105,7 @@ def run_job(job, rm=True):
         eplus_run(idf, epw,
                   output_directory=output_dir,
                   expandobjects=True,
-                  verbose='q')
+                  verbose='v')
     except Exception as e:
         logging.error("Error: %s" % e)
         raise
