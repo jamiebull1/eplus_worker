@@ -55,6 +55,12 @@ class TestRunIntegration(object):
         job = os.path.join(worker.main.JOBS_DIR, 'test.zip')
         run_job(job, rm=False)
 
+    def test_run_job_arbitrary_names(self):
+        """Integration test when files are not named in.idf and in.epw.
+        """
+        job = os.path.join(worker.main.JOBS_DIR, 'test_arbitrarynames.zip')
+        run_job(job, rm=False)
+
     def test_running_jobs(self):
         """
         Test that there are no running jobs if we haven't started any and
@@ -71,7 +77,10 @@ def test_getjobs():
     """Test that the expected test job is returned when we call get_jobs.
     """
     jobs = get_jobs()
-    assert jobs == [os.path.join(worker.main.JOBS_DIR, 'test.zip')]
+    assert jobs == [
+        os.path.join(worker.main.JOBS_DIR, 'test.zip'),
+        os.path.join(worker.main.JOBS_DIR, 'test_arbitrarynames.zip'),
+        ]
 
 
 class TestZipDir(object):

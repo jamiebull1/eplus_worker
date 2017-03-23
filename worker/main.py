@@ -13,6 +13,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import glob
 import logging
 from multiprocessing import cpu_count
 import multiprocessing
@@ -97,8 +98,8 @@ def run_job(job, rm=True):
     ensure_dir(run_dir)
     unzip_dir(job, run_dir, rm=rm, retry_time=5)
     try:
-        idf = os.path.join(run_dir, 'in.idf')
-        epw = os.path.join(run_dir, 'in.epw')
+        idf = glob.glob(os.path.join(run_dir, '*.idf'))[0]
+        epw = glob.glob(os.path.join(run_dir, '*.epw'))[0]
         output_dir = os.path.join(
             RESULTS_DIR, os.path.basename(run_dir))
         eplus_run(idf, epw,
@@ -141,7 +142,7 @@ def main():
         time.sleep(5)
         if running_jobs <= num_cpus:
             open(os.path.join(
-                THIS_DIR, os.pardir, os.pardir, 'ready.txt'), 'a').close()
+                THIS_DIR, os.pardir, 'ready.txt'), 'a').close()
         time.sleep(5)
 
 
