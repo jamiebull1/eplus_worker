@@ -32,8 +32,8 @@ def find_version():
     energyplus = os.path.realpath(energyplus)  # follow links in /usr/bin
     folder = os.path.dirname(energyplus)
     version = os.path.basename(folder)[-5:]
-    version = version.replace('.', '-')
-    assert version[1] == '-' and version[3] == '-'
+#    version = version.replace('.', '-')
+#    assert version[1] == '-' and version[3] == '-'
 
     return version
 
@@ -159,14 +159,8 @@ def run(idf=None, weather=None, output_directory='', annual=False,
             check_call(cmd, stdout=open(os.devnull, 'w'))
     except CalledProcessError as e:
         # potentially catch contents of std out and put it in the error
-        print(e)
-        pprint(**locals())
-        print(cmd)
         raise
     except IOError as e:
-        print(e)
-        pprint(**locals())
-        print(cmd)
         raise
     finally:
         os.chdir(cwd)
