@@ -8,6 +8,7 @@
 Class to run IDF objects in EnergyPlus.
 
 """
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -16,6 +17,7 @@ from __future__ import unicode_literals
 import distutils.spawn
 import os
 import platform
+from pprint import pprint
 from subprocess import CalledProcessError
 from subprocess import check_call
 import tempfile
@@ -155,8 +157,12 @@ def run(idf=None, weather=None, output_directory='', annual=False,
             check_call(cmd)
         elif verbose == 'q':
             check_call(cmd, stdout=open(os.devnull, 'w'))
-        os.chdir(cwd)
-    except CalledProcessError:
+    except CalledProcessError as e:
         # potentially catch contents of std out and put it in the error
+        print(e)
+        pprint(**locals())
+        print(cmd)
         raise
+    finally:
+        os.chdir(cwd)
     return 'OK'
