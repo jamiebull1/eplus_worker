@@ -77,10 +77,10 @@ def test_getjobs():
     """Test that the expected test job is returned when we call get_jobs.
     """
     jobs = get_jobs()
-    assert jobs == [
+    assert set(jobs) == set([
         os.path.join(worker.main.JOBS_DIR, 'test.zip'),
         os.path.join(worker.main.JOBS_DIR, 'test_arbitrarynames.zip'),
-        ]
+        ])
 
 
 class TestZipDir(object):
